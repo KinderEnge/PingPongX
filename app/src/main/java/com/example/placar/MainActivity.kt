@@ -1,11 +1,16 @@
 package com.example.placar
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.placar.databinding.ActivityMainBinding
+import com.example.placar.utils.KEY_RESULT_EXTRA_PLAYER_ONE_NAME
+import com.example.placar.utils.KEY_RESULT_EXTRA_PLAYER_ONE_SCORE
+import com.example.placar.utils.KEY_RESULT_EXTRA_PLAYER_TWO_NAME
+import com.example.placar.utils.KEY_RESULT_EXTRA_PLAYER_TWO_SCORE
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setUpExtras()
+        setUpExtras(savedInstanceState)
 
         setUpListeners()
         }
@@ -36,10 +41,37 @@ class MainActivity : AppCompatActivity() {
             playerTwoScore++
             binding.tvPlayerTwoScore.text = playerTwoScore.toString()
         }
+
+        binding.btFinishMatch.setOnClickListener {
+            val ret = Intent()
+            ret.putExtra(KEY_RESULT_EXTRA_PLAYER_ONE_NAME, binding.tvPlayerOneName.text.toString())
+            ret.putExtra(KEY_RESULT_EXTRA_PLAYER_TWO_NAME, binding.tvPlayerTwoName.text.toString())
+            ret.putExtra(KEY_RESULT_EXTRA_PLAYER_ONE_SCORE,
+                binding.tvPlayerOneScore.text.toString().toInt())
+            ret.putExtra(KEY_RESULT_EXTRA_PLAYER_TWO_SCORE,
+                binding.tvPlayerTwoScore.text.toString().toInt())
+            setResult(RESULT_OK, ret)
+            super.finish()
+        }
     }
 
-    private fun setUpExtras() {
+    private fun setUpExtras(savedInstanceState: Bundle?) {
         binding.tvPlayerOneName.text = intent.getStringExtra("PLAYER1")
         binding.tvPlayerTwoName.text = intent.getStringExtra("PLAYER2")
+
+        if(savedInstanceState!=null){
+            playerOneScore = savedInstanceState.getInt("PLAYER_ONE_SCORE")
+            playerTwoScore = savedInstanceState.getInt("PLAYER_TWO_SCORE")
+            binding.tvPlayerOneScore.text = playerOneScore.toString()
+            binding.tvPlayerTwoScore.text = playerTwoScore.toString()
+        }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("PLAYER_ONE_SCORE", playerOneScore)
+        outState.putInt("PLAYER_TWO_SCORE", playerTwoScore)
+    }
+
+
 }
